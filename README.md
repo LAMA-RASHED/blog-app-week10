@@ -93,7 +93,7 @@ aws s3 sync dist/ s3:// lama-blogapp-frontend
 #Notes
 - No secrets or credentials are pushed to GitHub
 
-#Result
+# Result
 
 - the Blog works 
 - Media upload works 
