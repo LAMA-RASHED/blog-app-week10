@@ -1,59 +1,97 @@
-#SDA2037-Lama 
- #Blog App Deployment – Week 10 
+# SDA2037-Lama 
 
- # requirements 
+# Week 10 - Blog App Deployment
 
-- Frontend: hosting S3 website 
-- Backend: Node.js + Express (hosted on EC2)
-- Media Uploads: AWS S3 bucket 
-- Deployment Tools: PM2, AWS CLI
+This repo is for deploying the blog app (frontend and backend) using AWS Free Tier services.  
+The frontend is hosted on S3, the backend is running on EC2, and another S3 bucket is used for media.
 
----
+# Requirements
 
-#What I Did 
+- MongoDB Atlas  
+- AWS S3 (2 buckets)  
+- AWS EC2  
+- IAM user  
+- Node.js and npm  
+- pnpm
 
-# 1. S3 – Frontend Hosting
-- Created bucket: `lama-blogapp-frontend`
-- Enabled static website hosting
-- Made it public with a bucket policy
+## Backend tasks
 
-# 2. S3 – Media Uploads
-- Created bucket: `lama-blogapp-media`
-- Set CORS to allow uploads
-- Made it public for media access
 
-# 3.IAM User
-- Created IAM user with permissions to access media bucket
-- Used its keys in backend `.env` file
+# MongoDB
+I used a connection string from MongoDB Atlas.
 
-#  4. EC2 Instance (Ubuntu)
-- Opened required ports: 22, 80, 443, 5000
-- Installed Node, PM2, AWS CLI
-- Cloned the project repo (https://github.com/cw-barry/blog-app-MERN.git) 
-- Created backend and frontend `.env` files
-- Installed dependencies and started backend with PM2
+# EC2
+- Opened ports: 22, 80, 443, 5000  
+- Uploaded the backend files to the EC2 server  
+- Installed the packages  
+- Used  pm2 to keep the backend running  
+- Checked the server using:
+curl -I http://lama-blogapp-frontend.s3-website.eu-north-1.amazonaws.com/
 
-#  5.Frontend Build & Deployment
-- Built the React app using `pnpm`
-- Synced the build folder to the frontend S3 bucket using AWS CLI
-# Links
+# .env file for backend
 
-- GitHub Repo: https://github.com/LAMA-RASHED/blog-app-week10
-- Frontend S3 Link: http://lama-blogapp-frontend.s3-website.eu-north-1.amazonaws.com
-note: I couldn’t sign up in Blog App
+cat > .env << EOF
+PORT=5000
+HOST=0.0.0.0
+MODE=production                                                                                               MONGODB=mongodb+srv://test:qazqwe123@mongodb.txkjsso.mongodb.net/blog-app
+# JWT Authentication
+JWT_SECRET=$(openssl rand -hex 32)
+JWT_EXPIRE=30min
+JWT_REFRESH=$(openssl rand -hex 32)
+JWT_REFRESH_EXPIRE=3d
+# AWS S3 Configuration
+AWS_ACCESS_KEY_ID=xxx
+AWS_SECRET_ACCESS_KEY=xx
+AWS_REGION=eu-north-1
+S3_BUCKET=lama-blogapp-media
+MEDIA_BASE_URL=https://lama-blogapp-media.eu-north-1.amazonaws.com
+# Misc
+DEFAULT_PAGINATION=20
+EOF
 
----
+## Frontend Task
 
-# Screenshots
+# .env for frontend
+cat > .env << EOF
+VITE_BASE_URL=http://13.48.204.74:5000/api
+VITE_MEDIA_BASE_URL=https://lama-blogapp-media.eu-north-1.amazonaws.comEOF
 
-All screenshots are in the `screenshots/` folder:
+# Build frontend
+pnpm install
+pnpm run build
 
-- Website open from S3
-- curl -I result with 200 OK
-- Uploaded file in media bucket
-- PM2 shows backend is running
 
----
+# Upload to S3
+
+aws s3 sync dist/ s3:// lama-blogapp-frontend
+
+
+# S3 Setup
+
+-  Bucket for frontend: 
+- Enabled static website hosting  
+- Made it public using a bucket policy
+
+# Bucket for media
+- Allowed PUT,  GET, and  DELETE using an IAM user  
+- Set CORS so the frontend can upload images directly
+
+# IAM
+
+- Created an IAM user called mern-blog-user
+- Gave access only to the media bucket  
+- Used the access key and secret in the backend
+
+## Screenshots
+
+- Found in the `screenshots/` folder:
+- pm2 running the backend on EC2  
+- Blog page from S3  
+- curl  -I result showing 200 OK  
+- Uploaded image inside the S3 bucket
+
+#Notes
+- No secrets or credentials are pushed to GitHub
 
 #Result
 
