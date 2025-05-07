@@ -33,7 +33,7 @@ curl -I http://lama-blogapp-frontend.s3-website.eu-north-1.amazonaws.com/
 cat > .env << EOF
 PORT=5000
 HOST=0.0.0.0
-MODE=production                                                                                               MONGODB=mongodb+srv://test:qazqwe123@mongodb.txkjsso.mongodb.net/blog-app
+MODE=production                                                                                  MONGODB= mongodb+srv://test:qazqwe123@mongodb.txkjsso.mongodb.net/blog-app
 # JWT Authentication
 JWT_SECRET=$(openssl rand -hex 32)
 JWT_EXPIRE=30min
